@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import AuthenticatedLayout from "services/AuthenticatedLayout";
 import Header from "components/Headers/Header.js";
 import useAlert from "../../hooks/useAlert.js";
-
 import { addDoc, collection } from "firebase/firestore";
 import { firestore } from "../../services/firebaseConfig.js";
-
 import {
   opcoesStatus,
   viasAdministracao,
@@ -29,8 +27,10 @@ import {
   Table,
   Alert,
 } from "reactstrap";
+import { useNavigate } from "react-router-dom";
 
 const New = () => {
+  const navigate = useNavigate();
   const { errorMessage, alertColor, alertTitle, showAlert, handleAlert } =
     useAlert();
 
@@ -121,7 +121,7 @@ const New = () => {
         unidadeEstoque: "",
       },
     });
-  
+
     setLot([
       {
         id: 1,
@@ -131,10 +131,43 @@ const New = () => {
         unidade: "",
       },
     ]);
-  
+
     setNextId(2);
-  
+
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCanceled = () => {
+    setData({
+      nome: "",
+      via_administracao: "",
+      tipo_Medicamento: "",
+      classe_farmacologica: "",
+      faixa_etaria: "",
+      status: "",
+      contraindicacoes: "",
+      dosage: {
+        numeroDosagem: "",
+        unidadeDosagem: "",
+      },
+      quantidade: {
+        quantidadeEstoque: "",
+        unidadeEstoque: "",
+      },
+    });
+
+    setLot([
+      {
+        id: 1,
+        numero: "",
+        validade: "",
+        quantidade: "",
+        unidade: "",
+      },
+    ]);
+
+    setNextId(2);
+    navigate('/admin/index');
   };
 
   const handleSubmit = async (e) => {
@@ -167,11 +200,13 @@ const New = () => {
                 <span style={{ marginLeft: "40px" }}>Adicionar</span>
               </div>
               <Card className="bg-secondary shadow cardStyle">
-                {showAlert && (
-                  <Alert color={alertColor} className="custom-alert">
-                    <strong>{alertTitle}</strong> {errorMessage}
-                  </Alert>
-                )}
+                <div className="floating-alert">
+                  {showAlert && (
+                    <Alert color={alertColor}>
+                      <strong>{alertTitle}</strong> {errorMessage}
+                    </Alert>
+                  )}
+                </div>
                 <CardBody>
                   <Form onSubmit={handleSubmit}>
                     <div className="pl-lg-4">
@@ -419,112 +454,119 @@ const New = () => {
                         Informação do Lote
                       </h6>
                       <FormGroup>
-                        <Container style={{ width: "100%", overflowX: "auto" }}>
-                          <Table bordered>
-                            <thead>
-                              <tr style={{ textAlign: "center" }}>
-                                <th>Número do Lote</th>
-                                <th>Validade</th>
-                                <th>Quantidade</th>
-                                <th>Ações</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {lot.map((item, index) => (
-                                <tr key={index}>
-                                  <td>
-                                    <Input
-                                      type="text"
-                                      id={`numeroLote_${index}`}
-                                      value={item.numero}
-                                      onChange={(e) =>
-                                        handleChangeLote(
-                                          item.id,
-                                          "numero",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="form-control"
-                                    />
-                                  </td>
-                                  <td>
-                                    <Input
-                                      type="date"
-                                      id={`validade_${index}`}
-                                      value={item.validade}
-                                      onChange={(e) =>
-                                        handleChangeLote(
-                                          item.id,
-                                          "validade",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="form-control"
-                                    />
-                                  </td>
-                                  <td>
-                                    <div className="d-flex">
-                                      <input
-                                        className="form-control form-control-alternative"
-                                        type="number"
-                                        id={`quantidade_${index}`}
-                                        value={item.quantidade}
-                                        onChange={(e) =>
-                                          handleChangeLote(
-                                            item.id,
-                                            "quantidade",
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                      <select
-                                        className="form-control form-control-alternative ml-1"
-                                        id={`unidade_${index}`}
-                                        name="unidade"
-                                        value={item.unidade}
-                                        onChange={(e) =>
-                                          handleChangeLote(
-                                            item.id,
-                                            "unidade",
-                                            e.target.value
-                                          )
-                                        }
-                                      >
-                                        <option>Selecione uma opção</option>
-                                        {unidadesMedida.map(
-                                          (unidade, index) => (
-                                            <option
-                                              key={index}
-                                              value={unidade.value}
-                                            >
-                                              {unidade.label}
-                                            </option>
-                                          )
-                                        )}
-                                      </select>
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <Button
-                                      style={buttonStyle}
-                                      onClick={addRow}
-                                    >
-                                      <IoMdAddCircle color="green" size={25} />
-                                    </Button>
-                                    <Button
-                                      style={buttonStyle}
-                                      onClick={() => removeRow(item.id)}
-                                    >
-                                      <IoIosRemoveCircle
-                                        color="red"
-                                        size={25}
-                                      />
-                                    </Button>
-                                  </td>
+                        <Container>
+                          <div style={{ overflowX: "auto" }}>
+                            <Table bordered>
+                              <thead>
+                                <tr style={{ textAlign: "center" }}>
+                                  <th>Número do Lote</th>
+                                  <th>Validade</th>
+                                  <th>Quantidade</th>
+                                  <th>Ações</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </Table>
+                              </thead>
+                              <tbody>
+                                {lot.map((item, index) => (
+                                  <tr key={index}>
+                                    <td>
+                                      <Input
+                                        type="text"
+                                        id={`numeroLote_${index}`}
+                                        value={item.numero}
+                                        onChange={(e) =>
+                                          handleChangeLote(
+                                            item.id,
+                                            "numero",
+                                            e.target.value
+                                          )
+                                        }
+                                        className="form-control"
+                                      />
+                                    </td>
+                                    <td>
+                                      <Input
+                                        type="date"
+                                        id={`validade_${index}`}
+                                        value={item.validade}
+                                        onChange={(e) =>
+                                          handleChangeLote(
+                                            item.id,
+                                            "validade",
+                                            e.target.value
+                                          )
+                                        }
+                                        className="form-control"
+                                      />
+                                    </td>
+                                    <td>
+                                      <div className="d-flex">
+                                        <input
+                                          className="form-control form-control-alternative"
+                                          style={{ minWidth: "70px" }}
+                                          type="number"
+                                          id={`quantidade_${index}`}
+                                          value={item.quantidade}
+                                          onChange={(e) =>
+                                            handleChangeLote(
+                                              item.id,
+                                              "quantidade",
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        <select
+                                          className="form-control form-control-alternative ml-1"
+                                          style={{ minWidth: "150px" }}
+                                          id={`unidade_${index}`}
+                                          name="unidade"
+                                          value={item.unidade}
+                                          onChange={(e) =>
+                                            handleChangeLote(
+                                              item.id,
+                                              "unidade",
+                                              e.target.value
+                                            )
+                                          }
+                                        >
+                                          <option>Selecione uma opção</option>
+                                          {unidadesMedida.map(
+                                            (unidade, index) => (
+                                              <option
+                                                key={index}
+                                                value={unidade.value}
+                                              >
+                                                {unidade.label}
+                                              </option>
+                                            )
+                                          )}
+                                        </select>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <Button
+                                        style={buttonStyle}
+                                        onClick={addRow}
+                                      >
+                                        <IoMdAddCircle
+                                          color="green"
+                                          size={25}
+                                        />
+                                      </Button>
+                                      <Button
+                                        style={buttonStyle}
+                                        onClick={() => removeRow(item.id)}
+                                      >
+                                        <IoIosRemoveCircle
+                                          color="red"
+                                          size={25}
+                                        />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </Table>
+                          </div>
                         </Container>
                       </FormGroup>
                     </div>
@@ -536,7 +578,7 @@ const New = () => {
                         type="button"
                         color="danger"
                         className="ml-2"
-                        onClick={handleClearForm}
+                        onClick={handleCanceled}
                       >
                         Cancelar
                       </Button>

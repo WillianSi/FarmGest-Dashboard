@@ -107,7 +107,7 @@ const Settings = () => {
       <AuthenticatedLayout>
         <Header />
         <Container className="mt--7" fluid>
-          <Row  className="mb-3">
+          <Row className="mb-3">
             <Col className="order-xl-1" xl="12">
               <div
                 className="d-flex justify-content-between align-items-center mb-3"
@@ -122,17 +122,19 @@ const Settings = () => {
                       <h3 className="mb-0">Minha conta</h3>
                     </Col>
                     <Col xs="8">
-                      {showAlert && (
-                        <Alert color={alertColor} className="custom-alert">
-                          <strong>{alertTitle}</strong> {errorMessage}
-                        </Alert>
-                      )}
+                      <div className="floating-alert">
+                        {showAlert && (
+                          <Alert color={alertColor}>
+                            <strong>{alertTitle}</strong> {errorMessage}
+                          </Alert>
+                        )}
+                      </div>
                     </Col>
                   </Row>
                 </CardHeader>
                 <CardBody>
                   <Form>
-                    <p className="heading-small text-muted">
+                    <p className="heading-small text-warning">
                       Renove a sessão se encontrar dificuldades ou erros.(saia e
                       entre)
                     </p>
@@ -189,6 +191,18 @@ const Settings = () => {
                       <Row>
                         <Col lg="6">
                           <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-username"
+                            >
+                              Nome de usuário (opcional)
+                            </label>
+                            <Input
+                              id="input-username"
+                              type="text"
+                              autoComplete="username"
+                              style={{ display: "none" }}
+                            />
                             <label
                               className="form-control-label"
                               htmlFor="input-senha"

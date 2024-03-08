@@ -74,7 +74,11 @@ const Index = () => {
           setMedications(allDocs);
         });
       } catch (error) {
-        console.error("Error fetching collection:", error);
+        handleAlert(
+          "Erro ao buscar medicamentos no banco de dados.",
+          "danger",
+          "Erro:"
+        );
       }
     };
     fetchEntireCollection();
@@ -86,6 +90,7 @@ const Index = () => {
         unsubscribeRef.current();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setMedications]);
 
   const filteredMedications = useMemo(() => {
@@ -214,11 +219,13 @@ const Index = () => {
           <Row>
             <div className="col">
               <Card className="shadow">
+                <div className="floating-alert">
                 {showAlert && (
-                  <Alert color={alertColor} className="custom-alert">
+                  <Alert color={alertColor}>
                     <strong>{alertTitle}</strong> {errorMessage}
                   </Alert>
                 )}
+                </div>
                 <CardHeader className="d-flex justify-content-between align-items-center">
                   <Form className="w-75">
                     <FormGroup className="mb-0">

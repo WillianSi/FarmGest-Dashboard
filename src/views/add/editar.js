@@ -399,7 +399,8 @@ const Editar = (props) => {
             <div style={{ marginBottom: "20px" }}></div>
             {showLoteInfo && (
               <FormGroup>
-                <Container style={{ width: "100%", overflowX: "auto" }}>
+                <Container>
+                <div style={{ overflowX: "auto" }}>
                   <Table bordered>
                     <thead>
                       <tr style={{ textAlign: "center" }}>
@@ -446,6 +447,7 @@ const Editar = (props) => {
                             <div className="d-flex">
                               <input
                                 className="form-control form-control-alternative"
+                                style={{ minWidth: "70px"}}
                                 type="number"
                                 id={`quantidade_${index}`}
                                 value={item.quantidade}
@@ -459,6 +461,7 @@ const Editar = (props) => {
                               />
                               <select
                                 className="form-control form-control-alternative ml-1"
+                                style={{ minWidth: "150px"}}
                                 id={`unidade_${index}`}
                                 name="unidade"
                                 value={item.unidade}
@@ -495,6 +498,7 @@ const Editar = (props) => {
                       ))}
                     </tbody>
                   </Table>
+                  </div>
                 </Container>
               </FormGroup>
             )}

@@ -77,9 +77,14 @@ const PasswordReset = () => {
                   Insira o seu email cadastrado para redefinir sua senha!
                 </p>
                 {showAlert && (
-                  <Alert color={alertColor} className="custom-alert">
-                    <strong>{alertTitle}</strong> {errorMessage}
-                  </Alert>
+                  <div
+                    className="position-absolute top-50 start-50 translate-middle"
+                    style={{ maxWidth: "400px", width: "90%" }}
+                  >
+                    <Alert color={alertColor} className="custom-alert">
+                      <strong>{alertTitle}</strong> {errorMessage}
+                    </Alert>
+                  </div>
                 )}
               </div>
             </CardHeader>
