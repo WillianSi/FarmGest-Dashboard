@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { auth } from "services/firebaseConfig";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { firestore } from "../../services/firebaseConfig.js";
 
 import Auth from "layouts/Auth.js";
 import AdminLayout from "layouts/Admin.js";
@@ -23,6 +24,7 @@ import {
   Row,
   Col,
 } from "reactstrap";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -42,11 +44,40 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-
     if (isFormValid) {
-      signInWithEmailAndPassword(email, password);
+      try {
+        const userCollectionRef = collection(firestore, "user");
+        const q = query(userCollectionRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          handleAlert(
+            "Você não tem permissão de administrador.",
+            "warning",
+            "Atenção!"
+          );
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          if (userData.permission === "admin") {
+            localStorage.setItem("userPermission", userData.permission);
+            signInWithEmailAndPassword(email, password);
+          } else {
+            handleAlert(
+              "Você não tem permissão de administrador.",
+              "warning",
+              "Atenção!"
+            );
+          }
+        });
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+        handleAlert("Erro ao tentar fazer login.", "danger", "Erro!");
+      }
     } else {
       handleAlert(
         "Por favor, insira um email válido e uma senha com pelo menos 6 caracteres.",
@@ -91,7 +122,7 @@ const Login = () => {
                 </p>
                 {showAlert && (
                   <div
-                    className="position-absolute top-50 start-50 translate-middle"
+                    className="position-absolute top-9 start-50 translate-middle"
                     style={{ maxWidth: "400px", width: "90%" }}
                   >
                     <Alert color={alertColor} className="custom-alert">
@@ -151,15 +182,10 @@ const Login = () => {
                   </Button>
                 </div>
               </Form>
-              <Row className="mt-3">
-                <Col className="text-left" xs="6">
+              <Row className="mt-3 justify-content-center">
+                <Col className="text-center" xs="6">
                   <Link to="/reset" className="text-darker">
                     <small>Esqueceu sua senha?</small>
-                  </Link>
-                </Col>
-                <Col className="text-right" xs="6">
-                  <Link to="/register" className="text-darker">
-                    <small>Não possui uma conta?</small>
                   </Link>
                 </Col>
               </Row>

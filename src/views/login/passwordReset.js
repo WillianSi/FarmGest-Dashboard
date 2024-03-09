@@ -30,7 +30,7 @@ const PasswordReset = () => {
   const isFormValid = emailPattern.test(email);
 
   const { errorMessage, alertColor, alertTitle, showAlert, handleAlert } =
-  useAlert();
+    useAlert();
 
   const resetPassword = (e) => {
     if (isFormValid) {
@@ -78,7 +78,7 @@ const PasswordReset = () => {
                 </p>
                 {showAlert && (
                   <div
-                    className="position-absolute top-50 start-50 translate-middle"
+                    className="position-absolute top-9 start-50 translate-middle"
                     style={{ maxWidth: "400px", width: "90%" }}
                   >
                     <Alert color={alertColor} className="custom-alert">
@@ -118,15 +118,10 @@ const PasswordReset = () => {
                   </Button>
                 </div>
               </Form>
-              <Row className="mt-3">
-                <Col className="text-left" xs="6">
-                  <Link to="/register" className="text-darker">
-                    <small>Não possui uma conta?</small>
-                  </Link>
-                </Col>
-                <Col className="text-right" xs="6">
+              <Row className="mt-3 justify-content-center">
+                <Col className="text-center" xs="6">
                   <Link to="/login" className="text-darker">
-                    <small>Já possui uma conta!</small>
+                    <small>Logar na conta!</small>
                   </Link>
                 </Col>
               </Row>

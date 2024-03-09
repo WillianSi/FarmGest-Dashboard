@@ -62,7 +62,7 @@ export const unidadesDosagem = [
   { value: "comprimidos", label: "Comprimidos" },
   { value: "cápsulas", label: "Cápsulas" },
   { value: "g", label: "g (Gramas)" },
-  { value: "t", label: "Gotas" },
+  { value: "gts", label: "gts (Gotas)" },
   { value: "L", label: "L (Litros)" },
   { value: "mcg", label: "mcg (Microgramas)" },
   { value: "mg", label: "mg (Miligramas)" },
@@ -70,20 +70,20 @@ export const unidadesDosagem = [
   { value: "puffs", label: "Puffs" },
   { value: "pulverizações", label: "Pulverizações" },
   { value: "%", label: "%" },
-  { value: "Outros", label: "Outros" },
+  { value: "outros", label: "Outros" },
   { value: "Não possui", label: "Não possui" }
 ];
 
 export const unidadesMedida = [
-  { value: "cr", label: "Cartelas (cr)" },
-  { value: "cx", label: "Caixas (cx)" },
+  { value: "cartelas", label: "Cartelas" },
+  { value: "caixas", label: "Caixas" },
   { value: "fr", label: "Frascos (fr)" },
   { value: "g", label: "Grama (g)" },
   { value: "kg", label: "Quilograma (kg)" },
   { value: "l", label: "Litro (l)" },
   { value: "ml", label: "Mililitro (ml)" },
-  { value: "un", label: "Unidade (un)" },
-  { value: "Outros", label: "Outros" },
+  { value: "unidade", label: "Unidade" },
+  { value: "outros", label: "Outros" },
 ];
 
 export const viasAdministracao = [

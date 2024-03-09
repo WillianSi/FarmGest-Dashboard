@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "services/AuthenticatedLayout.js";
+import Paginations from "../../components/Pagination/paginations.js";
 import isEqual from "lodash/isEqual";
 import {
   Modal,
@@ -20,6 +21,7 @@ import {
   IoIosArrowUp,
 } from "react-icons/io";
 import {
+  FilterSearchBar,
   opcoesStatus,
   viasAdministracao,
   tiposMedicamento,
@@ -33,6 +35,7 @@ import { firestore } from "../../services/firebaseConfig.js";
 
 const Editar = (props) => {
   const { medication } = props;
+  const [searchValue, setSearchValue] = useState("");
   const buttonStyle = {
     background: "transparent",
     border: "none",
@@ -73,15 +76,15 @@ const Editar = (props) => {
 
   const addRow = () => {
     const newId = nextId;
-    setLot((prevLot) => [
-      ...prevLot,
+    setLot(prevLot => [
       {
         id: newId,
         numero: "",
         validade: "",
         quantidade: "",
-        unidade: "",
+        unidade: ""
       },
+      ...prevLot
     ]);
     setNextId(newId + 1);
   };
@@ -108,10 +111,6 @@ const Editar = (props) => {
     }
     setData(updatedData);
   };
-
-  const sortedLot = lot
-    .slice()
-    .sort((a, b) => new Date(a.validade) - new Date(b.validade));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,6 +139,29 @@ const Editar = (props) => {
       props.toggle();
     }
   };
+
+  const sortedLot = lot
+    .slice()
+    .sort((a, b) => new Date(b.validade) - new Date(a.validade));
+
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedLot.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value.toLowerCase());
+  };
+
+  const filteredItems = currentItems.filter((item) =>
+    item.numero.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <Modal
@@ -399,105 +421,116 @@ const Editar = (props) => {
             <div style={{ marginBottom: "20px" }}></div>
             {showLoteInfo && (
               <FormGroup>
+                <div style={{ width: "250px" }}>
+                  <FilterSearchBar
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                  />
+                </div>
                 <Container>
-                <div style={{ overflowX: "auto" }}>
-                  <Table bordered>
-                    <thead>
-                      <tr style={{ textAlign: "center" }}>
-                        <th>Número do Lote</th>
-                        <th>Validade</th>
-                        <th>Quantidade</th>
-                        <th>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedLot.map((item, index) => (
-                        <tr key={index}>
-                          <td>
-                            <Input
-                              type="text"
-                              id={`numeroLote_${index}`}
-                              value={item.numero}
-                              onChange={(e) =>
-                                handleChangeLote(
-                                  item.id,
-                                  "numero",
-                                  e.target.value
-                                )
-                              }
-                              className="form-control"
-                            />
-                          </td>
-                          <td>
-                            <Input
-                              type="date"
-                              id={`validade_${index}`}
-                              value={item.validade}
-                              onChange={(e) =>
-                                handleChangeLote(
-                                  item.id,
-                                  "validade",
-                                  e.target.value
-                                )
-                              }
-                              className="form-control"
-                            />
-                          </td>
-                          <td>
-                            <div className="d-flex">
-                              <input
-                                className="form-control form-control-alternative"
-                                style={{ minWidth: "70px"}}
-                                type="number"
-                                id={`quantidade_${index}`}
-                                value={item.quantidade}
-                                onChange={(e) =>
-                                  handleChangeLote(
-                                    item.id,
-                                    "quantidade",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <select
-                                className="form-control form-control-alternative ml-1"
-                                style={{ minWidth: "150px"}}
-                                id={`unidade_${index}`}
-                                name="unidade"
-                                value={item.unidade}
-                                onChange={(e) =>
-                                  handleChangeLote(
-                                    item.id,
-                                    "unidade",
-                                    e.target.value
-                                  )
-                                }
-                              >
-                                <option>Selecione uma opção</option>
-                                {/* Suponho que você tenha um array chamado unidadesMedida */}
-                                {unidadesMedida.map((unidade, index) => (
-                                  <option key={index} value={unidade.value}>
-                                    {unidade.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </td>
-                          <td>
-                            <Button style={buttonStyle} onClick={addRow}>
-                              <IoMdAddCircle color="green" size={25} />
-                            </Button>
-                            <Button
-                              style={buttonStyle}
-                              onClick={() => removeRow(item.id)}
-                            >
-                              <IoIosRemoveCircle color="red" size={25} />
-                            </Button>
-                          </td>
+                  <div style={{ overflowX: "auto" }}>
+                    <Table bordered>
+                      <thead>
+                        <tr style={{ textAlign: "center" }}>
+                          <th>Número do Lote</th>
+                          <th>Validade</th>
+                          <th>Quantidade</th>
+                          <th>Ações</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+                      </thead>
+                      <tbody>
+                        {filteredItems.map((item, index) => (
+                          <tr key={index}>
+                            <td>
+                              <Input
+                                type="text"
+                                id={`numeroLote_${index}`}
+                                value={item.numero}
+                                onChange={(e) =>
+                                  handleChangeLote(
+                                    item.id,
+                                    "numero",
+                                    e.target.value
+                                  )
+                                }
+                                className="form-control"
+                              />
+                            </td>
+                            <td>
+                              <Input
+                                type="date"
+                                id={`validade_${index}`}
+                                value={item.validade}
+                                onChange={(e) =>
+                                  handleChangeLote(
+                                    item.id,
+                                    "validade",
+                                    e.target.value
+                                  )
+                                }
+                                className="form-control"
+                              />
+                            </td>
+                            <td>
+                              <div className="d-flex">
+                                <input
+                                  className="form-control form-control-alternative"
+                                  style={{ minWidth: "70px" }}
+                                  type="number"
+                                  id={`quantidade_${index}`}
+                                  value={item.quantidade}
+                                  onChange={(e) =>
+                                    handleChangeLote(
+                                      item.id,
+                                      "quantidade",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <select
+                                  className="form-control form-control-alternative ml-1"
+                                  style={{ minWidth: "150px" }}
+                                  id={`unidade_${index}`}
+                                  name="unidade"
+                                  value={item.unidade}
+                                  onChange={(e) =>
+                                    handleChangeLote(
+                                      item.id,
+                                      "unidade",
+                                      e.target.value
+                                    )
+                                  }
+                                >
+                                  <option>Selecione uma opção</option>
+                                  {unidadesMedida.map((unidade, index) => (
+                                    <option key={index} value={unidade.value}>
+                                      {unidade.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
+                            <td>
+                              <Button style={buttonStyle} onClick={addRow}>
+                                <IoMdAddCircle color="green" size={25} />
+                              </Button>
+                              <Button
+                                style={buttonStyle}
+                                onClick={() => removeRow(item.id)}
+                              >
+                                <IoIosRemoveCircle color="red" size={25} />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                    <Paginations
+                      itemsPerPage={itemsPerPage}
+                      totalItems={sortedLot.length}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
                   </div>
                 </Container>
               </FormGroup>

@@ -10,7 +10,6 @@ import "assets/css/farmagest.css";
 import AdminLayout from "layouts/Admin.js";
 
 import Login from "views/login/login.js";
-import Register from "views/login/register.js";
 import Reset from "views/login/passwordReset.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -20,8 +19,6 @@ root.render(
     <Routes>
       {/* Rota para a página de login como rota raiz */}
       <Route path="/*" element={<Login />} />
-      {/* Caminho para a página de inscrição */}
-      <Route path="/register" element={<Register />} />
       {/* Caminho para a página de redefinição de senha */}
       <Route path="/reset" element={<Reset />} />
       {/* Rota para o layout de admin */}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "services/firebaseConfig";
 import { updatePassword, updateEmail } from "firebase/auth";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { firestore } from "../../services/firebaseConfig.js";
 
 import AuthenticatedLayout from "services/AuthenticatedLayout";
 import Header from "components/Headers/Header.js";
@@ -25,20 +27,31 @@ import {
   InputGroupText,
   InputGroup,
 } from "reactstrap";
+import { doc, setDoc } from "firebase/firestore";
 
 const Settings = () => {
+  const userPermission = localStorage.getItem("userPermission");
   const [user] = useAuthState(auth);
   const [email, setEmail] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [oldEmail, setOldEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPasswordReg, setNewPasswordReg] = useState("");
+  const [confirmPasswordReg, setConfirmPasswordReg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordReg, setShowPasswordReg] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [showPasswordConfirmReg, setShowPasswordConfirmReg] = useState(false);
 
   const { errorMessage, alertColor, alertTitle, showAlert, handleAlert } =
     useAlert();
 
+  const [createUserWithEmailAndPassword] =
+    useCreateUserWithEmailAndPassword(auth);
+
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const isFormValid = newPasswordReg.length >= 6 && emailPattern.test(newEmail);
 
   const [excluirModalOpen, setExcluirModalOpen] = useState(false);
 
@@ -46,8 +59,16 @@ const Settings = () => {
     setShowPassword(!showPassword);
   };
 
+  const togglePasswordVisibilityReg = () => {
+    setShowPasswordReg(!showPasswordReg);
+  };
+
   const togglePasswordVisibilityConfirm = () => {
     setShowPasswordConfirm(!showPasswordConfirm);
+  };
+
+  const togglePasswordVisibilityConfirmReg = () => {
+    setShowPasswordConfirmReg(!showPasswordConfirmReg);
   };
 
   const handleEmail = async (e) => {
@@ -101,6 +122,43 @@ const Settings = () => {
       setOldEmail(user.email);
     }
   }, [user]);
+
+  const handleRegistration = async (e) => {
+    e.preventDefault();
+  
+    if (isFormValid) {
+      if (newPasswordReg === confirmPasswordReg) {
+        try {
+          const authUser = await createUserWithEmailAndPassword(
+            newEmail,
+            newPasswordReg
+          );
+  
+          if (authUser) {
+            await setDoc(doc(firestore, "user", authUser.user.uid), {
+              email: newEmail,
+              permission: "admin"
+            });
+  
+            handleAlert("Usuário criado com sucesso.", "success", "Sucesso:");
+          }
+        } catch (error) {
+          handleAlert("Falha ao criar usuário", "danger", "Erro!");
+        }
+        setNewEmail("");
+        setNewPasswordReg("");
+        setConfirmPasswordReg("");
+      } else {
+        handleAlert("As senhas não coincidem.", "danger", "Erro!");
+      }
+    } else {
+      handleAlert(
+        "Por favor, insira um email válido e uma senha com pelo menos 6 caracteres.",
+        "danger",
+        "Erro!"
+      );
+    }
+  };
 
   return (
     <>
@@ -191,12 +249,6 @@ const Settings = () => {
                       <Row>
                         <Col lg="6">
                           <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-username"
-                            >
-                              Nome de usuário (opcional)
-                            </label>
                             <Input
                               id="input-username"
                               type="text"
@@ -271,6 +323,107 @@ const Settings = () => {
                       </Button>
                     </div>
                   </Form>
+                  {userPermission === 'superadmin' && (
+                  <Form>
+                    <hr className="my-4" />
+                    <h6 className="heading-small text-muted mb-4">
+                      Criar nova conta
+                    </h6>
+                    <div className="pl-lg-4">
+                      <Row>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-new-email-reg"
+                            >
+                              Email
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              id="input-new-email-reg"
+                              placeholder="email@example.com"
+                              type="email"
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-new-password-reg"
+                            >
+                              Senha
+                            </label>
+                            <InputGroup className="input-group-alternative">
+                              <InputGroupAddon addonType="prepend">
+                                <InputGroupText>
+                                  <i
+                                    className="ni ni-lock-circle-open"
+                                    onClick={togglePasswordVisibilityReg}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </InputGroupText>
+                              </InputGroupAddon>
+                              <Input
+                                id="input-new-password-reg"
+                                placeholder="Senha"
+                                type={showPasswordReg ? "text" : "password"}
+                                autoComplete="new-password-reg"
+                                value={newPasswordReg}
+                                onPaste={(e) => e.preventDefault()}
+                                onCopy={(e) => e.preventDefault()}
+                                onChange={(e) =>
+                                  setNewPasswordReg(e.target.value)
+                                }
+                              />
+                            </InputGroup>
+                          </FormGroup>
+                        </Col>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-confirmar-senha-reg"
+                            >
+                              Confirmar nova senha
+                            </label>
+                            <InputGroup className="input-group-alternative">
+                              <InputGroupAddon addonType="prepend">
+                                <InputGroupText>
+                                  <i
+                                    className="ni ni-lock-circle-open"
+                                    onClick={togglePasswordVisibilityConfirmReg}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </InputGroupText>
+                              </InputGroupAddon>
+                              <Input
+                                id="input-confirmar-senha-reg"
+                                placeholder="Confirmar senha"
+                                type={
+                                  showPasswordConfirmReg ? "text" : "password"
+                                }
+                                autoComplete="new-password-reg"
+                                onPaste={(e) => e.preventDefault()}
+                                onCopy={(e) => e.preventDefault()}
+                                value={confirmPasswordReg}
+                                onChange={(e) =>
+                                  setConfirmPasswordReg(e.target.value)
+                                }
+                              />
+                            </InputGroup>
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                      <Button color="default" onClick={handleRegistration}>
+                        Criar conta
+                      </Button>
+                    </div>
+                  </Form>
+                  )}
                   <Form>
                     <hr className="my-4" />
                     <h6 className="heading-small text-muted mb-4">
