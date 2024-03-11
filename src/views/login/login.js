@@ -63,7 +63,7 @@ const Login = () => {
 
         querySnapshot.forEach((doc) => {
           const userData = doc.data();
-          if (userData.permission === "admin") {
+          if (userData.permission === "admin" || userData.permission === "superadmin") {
             localStorage.setItem("userPermission", userData.permission);
             signInWithEmailAndPassword(email, password);
           } else {
