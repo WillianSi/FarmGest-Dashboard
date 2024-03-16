@@ -7,7 +7,7 @@ import { firestore } from "../../services/firebaseConfig.js";
 import Auth from "layouts/Auth.js";
 import AdminLayout from "layouts/Admin.js";
 import useAlert from "../../hooks/useAlert.js";
-import logoImg from "../../assets/img/logo.png";
+import logoImg from "../../assets/img/logo.webp";
 
 import {
   Alert,

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "services/firebaseConfig";
 
-import logoImg from "../../assets/img/logo.png";
+import logoImg from "../../assets/img/logo.webp";
 import useAlert from "../../hooks/useAlert.js";
 
 import Auth from "layouts/Auth.js";

@@ -13,9 +13,6 @@ const GeneratePDFButton = ({ medications }) => {
 
   const handleMedPDF = () => {
     const doc = new jsPDF("landscape");
-    const sortedMedications = medications.sort((a, b) =>
-      a.dataMedications.nome.localeCompare(b.dataMedications.nome)
-    );
 
     const head = [
       [
@@ -30,7 +27,7 @@ const GeneratePDFButton = ({ medications }) => {
       ],
     ];
 
-    const tableData = sortedMedications.map((medication) => [
+    const tableData = medications.map((medication) => [
       medication.dataMedications.nome,
       medication.dataMedications.classe_farmacologica,
       `${medication.dataMedications.dosage.numeroDosagem}/${medication.dataMedications.dosage.unidadeDosagem}`,

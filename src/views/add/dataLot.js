@@ -3,10 +3,12 @@ import AuthenticatedLayout from "services/AuthenticatedLayout.js";
 import { Modal, Button, Form, ModalHeader, ModalBody } from "reactstrap";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import Loading from "../../components/Animation/loading.js";
 
 const DataLot = (props) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { medications, isOpen, toggle } = props;
 
   const clearFields = () => {
@@ -21,6 +23,7 @@ const DataLot = (props) => {
 
   const handleLotPDF = (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const doc = new jsPDF("landscape");
     const head = [
       [
@@ -35,9 +38,8 @@ const DataLot = (props) => {
       ],
     ];
 
-    medications.sort((a, b) =>
-      a.dataMedications.nome.localeCompare(b.dataMedications.nome)
-    );
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
 
     medications.forEach((medication) => {
       const tableData = [
@@ -71,18 +73,20 @@ const DataLot = (props) => {
         },
       });
 
-      const filteredLotMedications = medication.lotMedications.filter((lot) => {
-        const lotDate = new Date(lot.validade);
-        return lotDate >= new Date(startDate) && lotDate <= new Date(endDate);
-      });
+      // Filtra e classifica os lotes com base na data de validade
+      const filteredLotMedications = medication.lotMedications
+        .map((lot) => ({
+          ...lot,
+          validade: new Date(lot.validade),
+        }))
+        .filter(
+          (lot) => lot.validade >= startDateObj && lot.validade <= endDateObj
+        )
+        .sort((a, b) => a.validade - b.validade);
 
-      const sortedLotMedications = filteredLotMedications.sort(
-        (a, b) => new Date(a.validade) - new Date(b.validade)
-      );
-
-      const tableLot = sortedLotMedications.map((lot) => [
+      const tableLot = filteredLotMedications.map((lot) => [
         lot.numero,
-        lot.validade,
+        lot.validade.toLocaleDateString("pt-BR"),
         `${lot.quantidade} ${lot.unidade}`,
       ]);
 
@@ -101,7 +105,10 @@ const DataLot = (props) => {
         },
       });
     });
+
     doc.save("lista_de_medicamentos_por_lotes.pdf");
+    clearFields();
+    setIsLoading(false);
   };
 
   return (
@@ -111,9 +118,7 @@ const DataLot = (props) => {
         <ModalBody>
           <Form onSubmit={handleLotPDF}>
             <p>
-              Selecione um período de tempo para gerar um relatório ou clique no
-              botão sem selecionar nada para obter um relatório abrangendo todo
-              o período.
+              Selecione um período de tempo para gerar um relatório.
             </p>
             <div className="d-flex align-items-center mb-2 justify-content-center">
               <label htmlFor="dateInicial" className="mr-2">
@@ -142,8 +147,8 @@ const DataLot = (props) => {
               />
             </div>
             <div className="text-right">
-              <Button color="success" type="submit">
-                Gerar PDF
+              <Button type="submit" color="default" disabled={isLoading}>
+                {isLoading ? <Loading /> : "Gerar PDF"}
               </Button>
               <Button color="danger" onClick={handleToggle}>
                 Fechar

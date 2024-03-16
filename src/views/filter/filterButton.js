@@ -34,13 +34,17 @@ const FilterButton = ({ setFilters, filters }) => {
   const handleFilterSelect = (filter) => {
     if (filter === "todos") {
       setFilters({
-        status: [],
-        classeFarmacologica: [],
-        viaAdministracao: [],
-        tipoMedicamento: [],
-        unidadeDosagem: [],
-        faixaEtaria: [],
-        unidadeMedida: [],
+        status: "",
+        classeFarmacologica: "",
+        viaAdministracao: "",
+        tipoMedicamento: "",
+        unidadeDosagem: "",
+        faixaEtaria: "",
+        unidadeMedida: "",
+        dateRange: {
+          startDate: "",
+          endDate: "",
+        },
       });
     } else {
       if (filters[filter.type].includes(filter.value)) {
@@ -258,6 +262,67 @@ const FilterButton = ({ setFilters, filters }) => {
                       {item.label}
                     </DropdownItem>
                   ))}
+                <DropdownItem divider />
+              </>
+            )}
+            {(!searchValue ||
+              !classesFarmacologicas.some((item) =>
+                item.toLowerCase().includes(searchValue)
+              )) && (
+              <>
+                <DropdownItem header className="text-info">
+                  Data de validade
+                </DropdownItem>
+                <div className="d-flex flex-column align-items-center mb-2">
+                  <input
+                    id="dateInicial"
+                    type="date"
+                    value={filters.dateRange.startDate}
+                    onChange={(e) =>
+                      setFilters((prevState) => ({
+                        ...prevState,
+                        dateRange: {
+                          ...prevState.dateRange,
+                          startDate: e.target.value,
+                        },
+                      }))
+                    }
+                    className="form-control mr-2"
+                    style={{ width: "150px" }}
+                  />
+                  <input
+                    id="dateFinal"
+                    type="date"
+                    value={filters.dateRange.endDate}
+                    onChange={(e) =>
+                      setFilters((prevState) => ({
+                        ...prevState,
+                        dateRange: {
+                          ...prevState.dateRange,
+                          endDate: e.target.value,
+                        },
+                      }))
+                    }
+                    className="form-control mr-2"
+                    style={{ width: "150px", marginTop: "10px" }}
+                  />
+                </div>
+                <div className="d-flex justify-content-center">
+                  <DropdownItem
+                    onClick={() => {
+                      setFilters((prevState) => ({
+                        ...prevState,
+                        dateRange: {
+                          startDate: "",
+                          endDate: "",
+                        },
+                      }));
+                    }}
+                    className="filterButton"
+                  >
+                    Limpar
+                  </DropdownItem>
+                </div>
                 <DropdownItem divider />
               </>
             )}

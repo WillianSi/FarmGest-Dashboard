@@ -28,11 +28,14 @@ import {
   Alert,
 } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import Loading from "../../components/Animation/loading.js";
 
 const New = () => {
   const navigate = useNavigate();
   const { errorMessage, alertColor, alertTitle, showAlert, handleAlert } =
     useAlert();
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const [data, setData] = useState({
     nome: "",
@@ -167,11 +170,12 @@ const New = () => {
     ]);
 
     setNextId(2);
-    navigate('/admin/index');
+    navigate("/admin/index");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await addDoc(collection(firestore, "inventoryMedications"), {
         dataMedications: data,
@@ -183,6 +187,8 @@ const New = () => {
     } catch (e) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       handleAlert("Ao adicionar medicação.", "danger", "Erro:");
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -571,8 +577,12 @@ const New = () => {
                       </FormGroup>
                     </div>
                     <div className="text-right">
-                      <Button type="submit" color="default">
-                        Adicionar
+                      <Button
+                        type="submit"
+                        color="default"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? <Loading /> : "Adicionar"}
                       </Button>
                       <Button
                         type="button"

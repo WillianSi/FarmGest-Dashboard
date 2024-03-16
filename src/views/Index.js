@@ -30,6 +30,7 @@ import { firestore } from "../services/firebaseConfig.js";
 import { opcoesStatus } from "./filter/filters.js";
 
 import GeneratePDFButton from "./add/generatePDF.js";
+import Loading from "../components/Animation/table.js";
 
 const Index = () => {
   const [medications, setMedications] = useState([]);
@@ -53,13 +54,17 @@ const Index = () => {
   const { errorMessage, alertColor, alertTitle, showAlert, handleAlert } =
     useAlert();
   const [filters, setFilters] = useState({
-    status: [],
-    classeFarmacologica: [],
-    viaAdministracao: [],
-    tipoMedicamento: [],
-    unidadeDosagem: [],
-    faixaEtaria: [],
-    unidadeMedida: [],
+    status: '',
+    classeFarmacologica: '',
+    viaAdministracao: '',
+    tipoMedicamento: '',
+    unidadeDosagem: '',
+    faixaEtaria: '',
+    unidadeMedida: '',
+    dateRange: {
+      startDate: '',
+      endDate: '',
+    },
   });
 
   useEffect(() => {
@@ -71,7 +76,9 @@ const Index = () => {
             id: doc.id,
             ...doc.data(),
           }));
-          setMedications(allDocs);
+          //Ordena o array de medicamentos em ordem alfabética
+          const sortedMeds = allDocs.sort((a, b) => a.dataMedications.nome.localeCompare(b.dataMedications.nome));
+          setMedications(sortedMeds);
         });
       } catch (error) {
         handleAlert(
@@ -90,7 +97,6 @@ const Index = () => {
         unsubscribeRef.current();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setMedications]);
 
   const filteredMedications = useMemo(() => {
@@ -146,20 +152,19 @@ const Index = () => {
         )
       );
     }
+    if (filters.dateRange.startDate.length > 0 && filters.dateRange.endDate.length > 0) {
+      filtered = filtered.filter((medication) => {
+        const validLots = medication.lotMedications.filter((lot) => {
+          const lotDate = new Date(lot.validade);
+          const startDate = new Date(filters.dateRange.startDate);
+          const endDate = new Date(filters.dateRange.endDate);
+          return lotDate >= startDate && lotDate <= endDate;
+        });
+        return validLots.length > 0;
+      });
+    }
     return filtered;
   }, [medications, searchTerm, filters]);
-
-  const sortedMedications = filteredMedications.sort((a, b) => {
-    const nameA = a.dataMedications.nome.toUpperCase();
-    const nameB = b.dataMedications.nome.toUpperCase();
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
-    return 0;
-  });
 
   const handleStatusChange = async (medicationId, newStatus) => {
     try {
@@ -198,13 +203,17 @@ const Index = () => {
 
   const handleClearFilters = () => {
     setFilters({
-      status: [],
-      classeFarmacologica: [],
-      viaAdministracao: [],
-      tipoMedicamento: [],
-      unidadeDosagem: [],
-      faixaEtaria: [],
-      unidadeMedida: [],
+      status: '',
+      classeFarmacologica: '',
+      viaAdministracao: '',
+      tipoMedicamento: '',
+      unidadeDosagem: '',
+      faixaEtaria: '',
+      unidadeMedida: '',
+      dateRange: {
+        startDate: '',
+        endDate: '',
+      },
     });
   };
 
@@ -220,11 +229,11 @@ const Index = () => {
             <div className="col">
               <Card className="shadow">
                 <div className="floating-alert">
-                {showAlert && (
-                  <Alert color={alertColor}>
-                    <strong>{alertTitle}</strong> {errorMessage}
-                  </Alert>
-                )}
+                  {showAlert && (
+                    <Alert color={alertColor}>
+                      <strong>{alertTitle}</strong> {errorMessage}
+                    </Alert>
+                  )}
                 </div>
                 <CardHeader className="d-flex justify-content-between align-items-center">
                   <Form className="w-75">
@@ -281,73 +290,87 @@ const Index = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedMedications.map((medication, index) => (
-                      <tr key={medication.id}>
-                        <td>{medication.dataMedications.nome}</td>
-                        <td>
-                          {medication.dataMedications.classe_farmacologica}
+                    {medications.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="5"
+                          style={{
+                            textAlign: "center",
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          <div style={{ display: "inline-block" }}>
+                            <Loading />
+                          </div>
                         </td>
-                        <td>
-                          {medication.dataMedications.dosage.numeroDosagem}/
-                          {medication.dataMedications.dosage.unidadeDosagem}
-                        </td>
-                        <td className="align-middle">
-                          <div className="d-flex justify-content-center">
-                            <select
-                              id={`statusSelect_${index}`}
-                              className={`form-control form-control-sm form-control-alternative ${
-                                medication.dataMedications.status ===
-                                "Disponível"
-                                  ? "text-success"
-                                  : medication.dataMedications.status ===
-                                    "Indisponível"
-                                  ? "text-danger"
-                                  : "text-yellow"
-                              }`}
-                              style={{ width: "130px", textAlign: "center" }}
-                              value={medication.dataMedications.status}
-                              onChange={(e) =>
-                                handleStatusChange(
+                      </tr>
+                    ) : (
+                      filteredMedications.map((medication, index) => (
+                        <tr key={medication.id}>
+                          <td>{medication.dataMedications.nome}</td>
+                          <td>
+                            {medication.dataMedications.classe_farmacologica}
+                          </td>
+                          <td>
+                            {medication.dataMedications.dosage.numeroDosagem}/
+                            {medication.dataMedications.dosage.unidadeDosagem}
+                          </td>
+                          <td className="align-middle">
+                            <div className="d-flex justify-content-center">
+                              <select
+                                id={`statusSelect_${index}`}
+                                className={`form-control form-control-sm form-control-alternative ${
+                                  medication.dataMedications.status ===
+                                  "Disponível"
+                                    ? "text-success"
+                                    : medication.dataMedications.status ===
+                                      "Indisponível"
+                                    ? "text-danger"
+                                    : "text-yellow"
+                                }`}
+                                style={{ width: "130px", textAlign: "center" }}
+                                value={medication.dataMedications.status}
+                                onChange={(e) =>
+                                  handleStatusChange(
+                                    medication.id,
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                {opcoesStatus.map((opcao, index) => (
+                                  <option
+                                    key={index}
+                                    value={opcao}
+                                    className="text-black"
+                                  >
+                                    {opcao}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </td>
+                          <td>
+                            <Button
+                              style={buttonStyle}
+                              onClick={() => toggleEditarModal(medication.id)}
+                            >
+                              <FiEdit color="green" size={20} />
+                            </Button>
+                            <Button
+                              style={buttonStyle}
+                              onClick={() =>
+                                toggleExcluirModal(
                                   medication.id,
-                                  e.target.value
+                                  medication.dataMedications.nome
                                 )
                               }
                             >
-                              {opcoesStatus.map((opcao, index) => (
-                                <option
-                                  key={index}
-                                  value={opcao}
-                                  className="text-black"
-                                >
-                                  {opcao}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </td>
-                        <td>
-                          <Button
-                            style={buttonStyle}
-                            onClick={() => {
-                              toggleEditarModal(medication.id);
-                            }}
-                          >
-                            <FiEdit color="green" size={20} />
-                          </Button>
-                          <Button
-                            style={buttonStyle}
-                            onClick={() => {
-                              toggleExcluirModal(
-                                medication.id,
-                                medication.dataMedications.nome
-                              );
-                            }}
-                          >
-                            <TiDeleteOutline color="red" size={25} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                              <TiDeleteOutline color="red" size={25} />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </Table>
               </Card>

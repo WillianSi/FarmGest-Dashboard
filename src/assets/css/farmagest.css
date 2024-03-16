@@ -1,5 +1,5 @@
 .bg-image-login {
-  background-image: url("../img/woman.jpg");
+  background-image: url("../img/woman.webp");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -155,4 +155,19 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
+}
+
+.filterButton {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 10px;
+  max-width: 150px;
+  width: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

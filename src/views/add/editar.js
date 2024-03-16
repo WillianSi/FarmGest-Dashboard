@@ -32,9 +32,11 @@ import {
 } from "../filter/filters.js";
 import { doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../services/firebaseConfig.js";
+import Loading from "../../components/Animation/loading.js";
 
 const Editar = (props) => {
   const { medication } = props;
+  const [isLoading, setIsLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const buttonStyle = {
     background: "transparent",
@@ -76,15 +78,15 @@ const Editar = (props) => {
 
   const addRow = () => {
     const newId = nextId;
-    setLot(prevLot => [
+    setLot((prevLot) => [
       {
         id: newId,
         numero: "",
         validade: "",
         quantidade: "",
-        unidade: ""
+        unidade: "",
       },
-      ...prevLot
+      ...prevLot,
     ]);
     setNextId(newId + 1);
   };
@@ -114,6 +116,7 @@ const Editar = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const medicationRef = doc(
         firestore,
@@ -137,6 +140,8 @@ const Editar = (props) => {
     } catch (error) {
       props.handleAlert("Erro ao atualizar medicação.", "danger", "Erro:");
       props.toggle();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -536,7 +541,9 @@ const Editar = (props) => {
               </FormGroup>
             )}
             <div className="text-right">
-              <Button color="success">Salvar</Button>
+              <Button type="submit" color="default" disabled={isLoading}>
+                {isLoading ? <Loading /> : "Salvar"}
+              </Button>
               <Button color="danger" onClick={props.toggle}>
                 Fechar
               </Button>
