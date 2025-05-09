@@ -34,7 +34,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.4.0",
     "@react-pdf/renderer": "^3.3.8",
-    "bootstrap": "4.6.2",
+    "ajv": "^8.17.1",
+    "bootstrap": "4.6.0",
     "chart.js": "2.9.4",
     "classnames": "2.3.2",
     "firebase": "^10.3.1",
@@ -44,11 +45,11 @@
     "lottie-react": "^2.4.0",
     "moment": "2.29.4",
     "nouislider": "15.4.0",
-    "react": ">=16.0.0",
+    "react": "18.2.0",
     "react-chartjs-2": "2.11.2",
     "react-copy-to-clipboard": "5.1.0",
     "react-datetime": "3.2.0",
-    "react-dom": ">=16.0.0",
+    "react-dom": "18.2.0",
     "react-firebase": "^2.2.8",
     "react-firebase-hooks": "^5.1.1",
     "react-icons": "^4.10.1",
@@ -56,11 +57,12 @@
     "react-scripts": "5.0.1",
     "reactjs-forms": "^1.0.7",
     "reactstrap": "8.10.0",
-    "sass": "1.62.1"
+    "sass": "1.62.1",
+    "sass-loader": "10.1.1"
   },
   "peerDependencies": {
-    "react": ">=16.0.0",
-    "react-dom": ">=16.0.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "optionalDependencies": {
     "eslint-plugin-flowtype": "8.0.3",
